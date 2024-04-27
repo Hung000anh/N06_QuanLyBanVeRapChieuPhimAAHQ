@@ -359,3 +359,4 @@ public class GD_QuanLyPhim extends JPanel implements ActionListener{
 		comboBoxTheLoai.setSelectedIndex(0);
 	}
 }
+

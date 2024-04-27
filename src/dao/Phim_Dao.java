@@ -9,6 +9,8 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JComboBox;
+
 import connectDB.Database;
 import entity.Phim;
 
@@ -51,9 +53,9 @@ public class Phim_Dao {
 			 stmt = connect.prepareStatement("INSERT INTO Phim VALUES(?,?,?,?,?)");
 			 stmt.setString(1, p.getMaPhim());
 			 stmt.setString(2, p.getTenPhim());
-			 stmt.setString(3, p.getTheLoai());
+			 stmt.setString(3, p.getDaoDien());
 			 stmt.setTime(4, p.getThoiLuong());
-			 stmt.setString(5, p.getDaoDien());
+			 stmt.setString(5, p.getTheLoai());
 			
 			 n = stmt.executeUpdate();
 		 }catch (SQLException e) {
@@ -119,5 +121,34 @@ public class Phim_Dao {
 	            }
 	        }
 	        return n > 0; 
+	    }
+	 public void updateComboBox(JComboBox comboBox, String tableName, String columnName) {
+	        Connection connect = null;
+	        PreparedStatement stmt = null;
+
+	        try {
+	            connect = Database.getConnection();
+	            String sql = "SELECT DISTINCT " + columnName + " FROM " + tableName;
+	            stmt = connect.prepareStatement(sql);
+
+	            ResultSet rs = stmt.executeQuery();
+
+	            comboBox.removeAllItems();  // Xóa các mục hiện có
+
+	            while (rs.next()) {
+	                String value = rs.getString(1);
+	                comboBox.addItem(value);  // Thêm giá trị vào ComboBox
+	            }
+
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        } finally {
+	            try {
+	                if (stmt != null) stmt.close();
+	                if (connect != null) connect.close();
+	            } catch (SQLException e) {
+	                e.getStackTrace();
+	            }
+	        }
 	    }
 }
