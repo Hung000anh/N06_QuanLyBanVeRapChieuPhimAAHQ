@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -139,6 +141,7 @@ public class GD_QuanLySuatChieu extends JPanel implements ActionListener,MouseLi
 		pnRight.add(txtMa);
 		txtMa.setColumns(10);
 		
+		
 		cbbPhim = new JComboBox();
 		cbbPhim.setBounds(55, 100, 250, 22);
 		pnRight.add(cbbPhim);
@@ -195,10 +198,31 @@ public class GD_QuanLySuatChieu extends JPanel implements ActionListener,MouseLi
 		//btnXoa.addActionListener(this);
 		tableModel.addMouseListener(this);
 		
+		
 		loadDataTable();
 		loadDataToComboBoxPhim();
 		loadDataToComboBoxPhpng();
+		txtMa.setText(generateCode(cbbPhong.getSelectedItem().toString()));
 		
+		cbbPhong.addActionListener(new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        // Xử lý sự kiện khi có lựa chọn mới được chọn trong JComboBox
+		        String selectedPhong = (String) cbbPhong.getSelectedItem();
+		        txtMa.setText(generateCode(cbbPhong.getSelectedItem().toString()));
+		    }
+		});
+		
+		txtNgay.getDateEditor().addPropertyChangeListener(new PropertyChangeListener() {
+		    @Override
+		    public void propertyChange(PropertyChangeEvent evt) {
+		        if ("date".equals(evt.getPropertyName())) {
+		            // Xử lý sự kiện khi ngày thay đổi
+		            Date selectedDate = txtNgay.getDate();
+		            txtMa.setText(generateCode(cbbPhong.getSelectedItem().toString()));
+		        }
+		    }
+		});
 	}
 	public void loadDataTable() {
 		List<SuatChieu> listSC = new ArrayList();
@@ -231,6 +255,7 @@ public class GD_QuanLySuatChieu extends JPanel implements ActionListener,MouseLi
 		int row = tableModel.getSelectedRow();
 		if(row >= 0) {
 	        SuatChieu sc = (new SuatChieu_Dao()).findByMaSC(tableModel.getValueAt(row, 0).toString());
+	        txtMa.setText(tableModel.getValueAt(row, 0).toString());
 	        cbbPhim.setSelectedItem(tableModel.getValueAt(row, 4).toString());
 	        LocalDate ngay = (LocalDate) tableModel.getValueAt(row, 1);
 	        txtNgay.setDate(java.sql.Date.valueOf(ngay));
@@ -264,6 +289,7 @@ public class GD_QuanLySuatChieu extends JPanel implements ActionListener,MouseLi
 		Object o =e.getSource();
 		if(o.equals(btnXoaRong))
 		{
+			txtMa.setText(generateCode(cbbPhong.getSelectedItem().toString()));
 			cbbGio.setSelectedIndex(1);
 			cbbPhim.setSelectedIndex(1);
 			cbbPhong.setSelectedIndex(1);
@@ -277,7 +303,7 @@ public class GD_QuanLySuatChieu extends JPanel implements ActionListener,MouseLi
 	        String maPhim = new SuatChieu_Dao().getMaPhimByTen(phim);
 	        String gio =(String) cbbGio.getSelectedItem();
 	        String phong =(String) cbbPhong.getSelectedItem();
-	        String ma = generateCode(cbbPhong, txtMa);
+	        String ma = generateCode(cbbPhong.getSelectedItem().toString());
 	        String GioCong="2:00";
 	        String resultTime = null;
 	        // Chuyển đổi thời gian thành đối tượng LocalTime
@@ -299,19 +325,33 @@ public class GD_QuanLySuatChieu extends JPanel implements ActionListener,MouseLi
 	        resultTime = DateTimeFormatter.ofPattern("HH:mm").format(ketQua);
 	        
 	        SuatChieu sc = new SuatChieu(ma,ngay,gio,resultTime,new Phim(maPhim),new PhongChieu(phong) );
-	        
 	        SuatChieu_Dao daoSC = new SuatChieu_Dao();
-	        boolean success = daoSC.addSuatChieu(sc);
-
-	        if (success) {
+	        ArrayList<SuatChieu> danhSachSuatChieu = daoSC.docTubang();
+	        boolean trungKhop = false;
+	        String str = "";
+	        for(SuatChieu suatChieu : danhSachSuatChieu)
+	        {
+	        
+	        	if(suatChieu.getMaSuatChieu().substring(2, 15).equals(sc.getMaSuatChieu().substring(2, 15))) //trùng mã YYYYMMDDSCXXX
+	        	{
+	        		if ( suatChieu.getThoiGianBD().equals(sc.getThoiGianBD()) ) {
+	        				str = suatChieu.getMaSuatChieu().substring(2, 16);
+	        	            trungKhop = true;
+	        	            break;
+	        	        }
+	        	}
+	        }
+	        if (!trungKhop) {
+	            danhSachSuatChieu.add(sc);
+	            daoSC.addSuatChieu(sc);
 	            JOptionPane.showMessageDialog(this, "Thêm suất chiếu thành công!");
 	            addRowKM(sc);
 	        } else {
-	            JOptionPane.showMessageDialog(this, "Thêm suất chiếu thất bại!");
+	            JOptionPane.showMessageDialog(this, "Suất chiếu trùng khớp với thời gian đã có! " + str);
 	        }
 		}
 		if(o.equals(btnTim)) {
-			String ma = txtTim.getText();
+			String ma = txtTim.getText(); 
 			SuatChieu sc = (new SuatChieu_Dao()).findByMaSC(ma);
 				if(sc != null) {
 					dataModel.setRowCount(0);
@@ -352,21 +392,34 @@ public class GD_QuanLySuatChieu extends JPanel implements ActionListener,MouseLi
 		      
 		        
 		        SuatChieu sc = new SuatChieu(ma,ngay,gio,resultTime,new Phim(maPhim),new PhongChieu(phong) );
+		        SuatChieu_Dao daoSC = new SuatChieu_Dao();
+		        ArrayList<SuatChieu> danhSachSuatChieu = daoSC.docTubang();
+		        boolean trungKhop = false;
 		        
-		        boolean success = (new SuatChieu_Dao()).updateSC(sc);
-		        
-		        if (success) {
+		        for(SuatChieu suatChieu : danhSachSuatChieu)
+		        {
+		        	if(!suatChieu.getMaSuatChieu().substring(2, 16).equals(sc.getMaSuatChieu().substring(2, 16))) //trùng mã YYYYMMDDSCXXXY
+			        	if(suatChieu.getMaSuatChieu().substring(2, 15).equals(sc.getMaSuatChieu().substring(2, 15))) //trùng mã YYYYMMDDSCXXX
+			        	{
+			        		if ( suatChieu.getThoiGianBD().equals(sc.getThoiGianBD()) ) {
+			        	            trungKhop = true;
+			        	            break;
+			        	        }
+			        	}
+		        }
+		        if (!trungKhop) {
+		            danhSachSuatChieu.add(sc);
 		            JOptionPane.showMessageDialog(this, "Cập nhật thông tin thành công!");
 		            tableModel.setValueAt(ngay, selectedRow, 1);
 		            tableModel.setValueAt(gio, selectedRow, 2);
 		            tableModel.setValueAt(resultTime, selectedRow, 3);
 		            tableModel.setValueAt(phim, selectedRow, 4);
 		            tableModel.setValueAt(phong, selectedRow, 5);
-		            
+		            daoSC.updateSC(sc);
 		        } else {
-		            JOptionPane.showMessageDialog(this, "Cập nhật thông tin thất bại!");
-		           
+		            JOptionPane.showMessageDialog(this, "Suất chiếu trùng khớp với thời gian đã có!");
 		        }
+		        
 		    } else {
 		        JOptionPane.showMessageDialog(this, "Vui lòng chọn một hàng trong bảng để sửa thông tin.");
 		    }
@@ -394,34 +447,54 @@ public class GD_QuanLySuatChieu extends JPanel implements ActionListener,MouseLi
 //		    }
 //		}
 	}
-	 public String generateCode(JComboBox<String> comboBox, JTextField txtMa) { // lỗi chưa biết fix sao
-		 
-	        // Lấy mã phòng chiếu từ JComboBox
-	        String maPhongChieu = (String) comboBox.getSelectedItem();
+	public String generateCode(String maPhongChieucb) {
+	    // Lấy mã phòng chiếu từ JComboBox
+	    String maPhongChieu = maPhongChieucb;
+
+	    // Lấy ngày hiện tại và định dạng theo yyyyMMdd
+	    
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+	    String selDate = dateFormat.format(txtNgay.getDate());
+	    int sl = 0;
+	    boolean ktthaydoi = false;
+	    SuatChieu_Dao sc_dao= new SuatChieu_Dao();
+	    
+	    if (sc_dao.docTubang() == null) { //danh sách rỗng
+	        sl = 0;
+	    } else {
+	        for (SuatChieu sc : sc_dao.docTubang()) { //danh sách tồn tại
+	        	//System.out.println("mã lớn nhất" + sc.getMaSuatChieu().substring(2, 14));
+	            if (sc.getMaSuatChieu().substring(2, 15).equals(selDate + maPhongChieu)) {
+	                char chuCuoiChar = sc.getMaSuatChieu().charAt(sc.getMaSuatChieu().length() -1);
+	                int soNguyenChuCuoi = Integer.parseInt(String.valueOf(chuCuoiChar)); //ép kiểu
+	                if (soNguyenChuCuoi > sl) {
+	                	//System.out.println("mã lớn nhất" + sc.getMaSuatChieu().substring(2, 10));
+	                    sl = soNguyenChuCuoi;
+	                    ktthaydoi = true;
+	                }
+	            }   
+	        }
 	        
-	        // Lấy ngày hiện tại và định dạng theo yyyyMMdd
-	        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-	        String selDate = dateFormat.format(txtNgay.getDate());
-	        int sl = 0;
-	        SuatChieu_Dao sc_dao=new SuatChieu_Dao();
-			for (SuatChieu sc : sc_dao.docTubang()) {
-				if (sc.getMaSuatChieu().substring(2, 8).equals(selDate))
-					sl++;
-			}
-			String slString = String.format("%03d", sl + 1);
-			
-	        
-	        
-	        
-	        // Tạo mã tự động theo định dạng SC<Date><Mã Phòng chiếu><X>
-	        String generatedCode = "SC" + selDate + maPhongChieu + slString;
-	        
-	        // Cập nhật giá trị mới vào JTextField
-	        txtMa.setText(generatedCode);
-	        
-	        // Trả về mã tự động
-	        return generatedCode;
 	    }
+	    if(ktthaydoi == true) // có thay đổi trong vòng lặp
+	    {
+	    	sl++;
+	    }
+	    
+	    String slString = String.format("%01d", sl);
+	    
+	    // Tạo mã tự động theo định dạng SC<Date><Mã Phòng chiếu><X>
+	    String generatedCode = "SC" + selDate + maPhongChieu + slString;
+	    
+	    //System.out.println(generatedCode);
+	    
+	    // Cập nhật giá trị mới vào JTextField
+	    txtMa.setText(generatedCode);
+	    
+	    // Trả về mã tự động
+	    return generatedCode;
+	}
+
 	    
 	    // Hàm để tìm giá trị của X từ mã đã có
 	 

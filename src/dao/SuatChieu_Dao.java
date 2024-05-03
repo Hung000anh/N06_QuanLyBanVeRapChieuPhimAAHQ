@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import entity.NhanVien;
@@ -81,7 +82,9 @@ private static ArrayList<SuatChieu> DanhSachSuatChieu = new ArrayList<SuatChieu>
 		}
 		return n > 0;
 	}
-    public boolean remove(String ma) {
+
+
+	public boolean remove(String ma) {
     	Connection connect = null;
         PreparedStatement stmt = null;
     	int n = 0;
