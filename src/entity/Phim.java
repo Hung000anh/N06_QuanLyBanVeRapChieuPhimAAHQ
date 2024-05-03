@@ -16,6 +16,10 @@ public class Phim {
 		this.thoiLuong = thoiLuong;
 		this.theLoai = theLoai;
 	}
+	public Phim(String maPhim) {
+		super();
+		this.maPhim = maPhim;
+	}
 	public Phim() {
 
 	}

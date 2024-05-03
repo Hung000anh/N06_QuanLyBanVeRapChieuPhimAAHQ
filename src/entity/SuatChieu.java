@@ -1,53 +1,88 @@
 package entity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class SuatChieu {
 	private String maSuatChieu;
-	private LocalDateTime timeBD;
-	private LocalDateTime timeKT;
-	private Phim mphim;
-	private Phong mPhong;
+	private LocalDate ngayChieu;
+	private String thoiGianBD;
+	private String thoiGianKT;
+	private Phim maPhim;
+	private PhongChieu maPhongChieu;
+	
 	public String getMaSuatChieu() {
 		return maSuatChieu;
 	}
 	public void setMaSuatChieu(String maSuatChieu) {
 		this.maSuatChieu = maSuatChieu;
 	}
-	public LocalDateTime getTimeBD() {
-		return timeBD;
+	public LocalDate getNgayChieu() {
+		return ngayChieu;
 	}
-	public void setTimeBD(LocalDateTime timeBD) {
-		this.timeBD = timeBD;
+	public void setNgayChieu(LocalDate ngayChieu) {
+		this.ngayChieu = ngayChieu;
 	}
-	public LocalDateTime getTimeKT() {
-		return timeKT;
+	public String getThoiGianBD() {
+		return thoiGianBD;
 	}
-	public void setTimeKT(LocalDateTime timeKT) {
-		this.timeKT = timeKT;
+	public void setThoiGianBD(String thoiGianBD) {
+		this.thoiGianBD = thoiGianBD;
 	}
-	public Phim getMphim() {
-		return mphim;
+	public String getThoiGianKT() {
+		return thoiGianKT;
 	}
-	public void setMphim(Phim mphim) {
-		this.mphim = mphim;
+	public void setThoiGianKT(String thoiGianKT) {
+		this.thoiGianKT = thoiGianKT;
 	}
-	public Phong getmPhong() {
-		return mPhong;
+	
+	public Phim getMaPhim() {
+		return maPhim;
 	}
-	public void setmPhong(Phong mPhong) {
-		this.mPhong = mPhong;
+	public void setMaPhim(Phim maPhim) {
+		this.maPhim = maPhim;
 	}
-	public SuatChieu() {
-		// TODO Auto-generated constructor stub
+	public PhongChieu getMaPhongChieu() {
+		return maPhongChieu;
 	}
-	public SuatChieu(String maSuatChieu, LocalDateTime timeBD, LocalDateTime timeKT, Phim mphim, Phong mPhong) {
+	public void setMaPhongChieu(PhongChieu maPhongChieu) {
+		this.maPhongChieu = maPhongChieu;
+	}
+	
+	public SuatChieu(String maSuatChieu, LocalDate ngayChieu, String thoiGianBD, String thoiGianKT, Phim maPhim,
+			PhongChieu maPhongChieu) {
 		super();
 		this.maSuatChieu = maSuatChieu;
-		this.timeBD = timeBD;
-		this.timeKT = timeKT;
-		this.mphim = mphim;
-		this.mPhong = mPhong;
+		this.ngayChieu = ngayChieu;
+		this.thoiGianBD = thoiGianBD;
+		this.thoiGianKT = thoiGianKT;
+		this.maPhim = maPhim;
+		this.maPhongChieu = maPhongChieu;
 	}
+	public SuatChieu(String maSuatChieu, LocalDate ngayChieu, String thoiGianBD, String thoiGianKT) {
+		super();
+		this.maSuatChieu = maSuatChieu;
+		this.ngayChieu = ngayChieu;
+		this.thoiGianBD = thoiGianBD;
+		this.thoiGianKT = thoiGianKT;
+		this.maPhim=new Phim();
+		this.maPhongChieu = new PhongChieu();
+	}
+	public SuatChieu(String maSuatChieu)
+	{
+		this.maSuatChieu = maSuatChieu;
+	}
+//	public SuatChieu(String maSuatChieu, LocalDate ngayChieu, String thoiGianBD, String thoiGianKT, String phim,
+//			String phongChieu) {
+//		super();
+//		this.maSuatChieu = maSuatChieu;
+//		this.ngayChieu = ngayChieu;
+//		this.thoiGianBD = thoiGianBD;
+//		this.thoiGianKT = thoiGianKT;
+//		Phim = phim;
+//		PhongChieu = phongChieu;
+//	}
+	
+	
+	
 	
 }
