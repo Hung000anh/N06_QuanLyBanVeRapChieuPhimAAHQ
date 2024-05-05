@@ -3,8 +3,8 @@ package entity;
 public class ChiTietHoaDon {
 	private String maHoaDon;
 	private String maVe;
-	private String soTienVe;
-	public ChiTietHoaDon(String maHoaDon, String maVe, String soTienVe) {
+	private Double soTienVe;
+	public ChiTietHoaDon(String maHoaDon, String maVe, Double soTienVe) {
 		super();
 		this.maHoaDon = maHoaDon;
 		this.maVe = maVe;
@@ -22,7 +22,7 @@ public class ChiTietHoaDon {
 	public void setMaVe(String maVe) {
 		this.maVe = maVe;
 	}
-	public String getSoTienVe() {
+	public Double getSoTienVe() {
 		return soTienVe;
 	}
 	
